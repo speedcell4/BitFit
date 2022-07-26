@@ -7,19 +7,23 @@ For questions please reach: benzakenelad@gmail.com
 Author Elad Ben-Zaken
 """
 import argparse
-import os
 import logging
+import os
 
-from utils import setup_logging
 from glue_evaluator import GLUEvaluator, set_seed
+from utils import setup_logging
 
 setup_logging()
-LOGGER = logging.getLogger(__file__)
+logger = logging.getLogger(__file__)
 
 PADDING = "max_length"
 MAX_SEQUENCE_LEN = 128
 
-RAND_UNIFORM_MASK_SIZE = {'bert-base-cased': 100000, 'bert-large-cased': 280000, 'roberta-base': 105000}
+RAND_UNIFORM_MASK_SIZE = {
+    'bert-base-cased': 100000,
+    'bert-large-cased': 280000,
+    'roberta-base': 105000,
+}
 
 
 def _parse_args():
@@ -34,7 +38,8 @@ def _parse_args():
                         choices={'bert-base-cased', 'bert-large-cased', 'roberta-base'})
 
     parser.add_argument('--fine-tune-type', '-f', required=True, type=str,
-                        help='Which fine tuning process to perform, types are the types that were performed in BitFit paper.',
+                        help='Which fine tuning process to perform, types are the types that '
+                             'were performed in BitFit paper.',
                         choices={'full_ft', 'bitfit', 'frozen', 'rand_uniform', 'rand_row_col'})
     parser.add_argument('--bias-terms', metavar='N', type=str, nargs='+', default=['all'],
                         choices={'intermediate', 'key', 'query', 'value', 'output', 'output_layernorm',
@@ -72,32 +77,32 @@ def _validate_args(args):
 
 
 def _plot_training_details(args):
-    [LOGGER.info('############################################################################################') for _
+    [logger.info('############################################################################################') for _
      in range(3)]
-    LOGGER.info('')
+    logger.info('')
 
-    LOGGER.info('Training Details: ')
-    LOGGER.info('----------------------------------------------')
-    LOGGER.info(f'Model Name: {args.model_name}')
-    LOGGER.info(f'Task Name: {args.task_name}')
-    LOGGER.info(f'Fine Tuning Type: {args.fine_tune_type}')
-    LOGGER.info(f'Output Directory: {args.output_path}')
+    logger.info('Training Details: ')
+    logger.info('----------------------------------------------')
+    logger.info(f'Model Name: {args.model_name}')
+    logger.info(f'Task Name: {args.task_name}')
+    logger.info(f'Fine Tuning Type: {args.fine_tune_type}')
+    logger.info(f'Output Directory: {args.output_path}')
 
     if args.gpu_device is not None:
-        LOGGER.info(f'Running on GPU #{args.gpu_device}')
+        logger.info(f'Running on GPU #{args.gpu_device}')
     else:
-        LOGGER.info(f'Running on CPU')
+        logger.info(f'Running on CPU')
 
     if args.fine_tune_type == 'bitfit':
-        LOGGER.info(f"Bias Trainable Terms: {'all bias terms' if 'all' in args.bias_terms else args.bias_terms}")
+        logger.info(f"Bias Trainable Terms: {'all bias terms' if 'all' in args.bias_terms else args.bias_terms}")
 
-    LOGGER.info(f'Epochs: {args.epochs}')
-    LOGGER.info(f'Learning Rate: {args.learning_rate}')
-    LOGGER.info(f'Batch Size: {args.batch_size}')
-    LOGGER.info(f"Optimizer: {'AdamW' if args.optimizer == 'adamw' else 'Adam'}")
+    logger.info(f'Epochs: {args.epochs}')
+    logger.info(f'Learning Rate: {args.learning_rate}')
+    logger.info(f'Batch Size: {args.batch_size}')
+    logger.info(f"Optimizer: {'AdamW' if args.optimizer == 'adamw' else 'Adam'}")
 
-    LOGGER.info('')
-    [LOGGER.info('############################################################################################') for _
+    logger.info('')
+    [logger.info('############################################################################################') for _
      in range(3)]
 
 

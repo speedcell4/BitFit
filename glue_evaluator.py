@@ -7,30 +7,29 @@ For questions please reach: benzakenelad@gmail.com
 Author Elad Ben-Zaken
 """
 
+import logging
 import os
+import pickle
 import re
 from functools import reduce
 
-import logging
-import pickle
-import numpy as np
 import matplotlib.pyplot as plt
-from seaborn import heatmap
-from scipy.stats import spearmanr, pearsonr
-from sklearn.metrics import f1_score, matthews_corrcoef, accuracy_score
-
+import numpy as np
 import torch
+from datasets import load_dataset
+from datasets.arrow_dataset import Dataset
+from scipy.stats import spearmanr, pearsonr
+from seaborn import heatmap
+from sklearn.metrics import f1_score, matthews_corrcoef, accuracy_score
 from torch.optim import Adam
 from torch.utils.data import TensorDataset, DataLoader, RandomSampler, SequentialSampler
-from datasets import load_dataset
-from transformers.optimization import AdamW
 from transformers import AutoTokenizer, AutoModelForSequenceClassification, AutoConfig
-from datasets.arrow_dataset import Dataset
+from transformers.optimization import AdamW
 
 from utils import setup_logging
 
 setup_logging()
-LOGGER = logging.getLogger(__file__)
+logger = logging.getLogger(__file__)
 
 
 def set_seed(seed):
@@ -159,7 +158,7 @@ class GLUEvaluator:
             train_size (int): clip the train dataset size, if None will use all available samples
 
         """
-        LOGGER.info(f'Downloading dataset: {self.task_name}')
+        logger.info(f'Downloading dataset: {self.task_name}')
         datasets = load_dataset('glue', self.task_name)
 
         self.batch_size = batch_size
@@ -230,8 +229,9 @@ class GLUEvaluator:
 
         if encoder_trainable and trainable_components:
             raise Exception(
-                f"If encoder_trainable is True, you shouldn't supply trainable_components. "
-                f"Got trainable_components: {trainable_components}")
+                f'If encoder_trainable is True, you shouldn\'t supply trainable_components. '
+                f'Got trainable_components: {trainable_components}',
+            )
 
         self.encoder_trainable = encoder_trainable
         # model declaration
@@ -311,7 +311,7 @@ class GLUEvaluator:
             output_path (str): Directory to save to model to.
 
         """
-        LOGGER.info(f'Saving the model to: {output_path}')
+        logger.info(f'Saving the model to: {output_path}')
 
         self.model.cpu()
         data = {'model': self.model, 'model_name': self.model_name, 'task_name': self.task_name,
@@ -363,7 +363,7 @@ class GLUEvaluator:
         if self.device is not None:
             self.model.cuda(self.device)
 
-        LOGGER.info(f'Exporting model test set predictions to: {output_path}.')
+        logger.info(f'Exporting model test set predictions to: {output_path}.')
 
         test_data_loaders = dict()
         if self.task_name == 'mnli':
@@ -416,7 +416,7 @@ class GLUEvaluator:
                 for idx, result in enumerate(results):
                     file.write(f'{idx}\t{result}\n')
 
-        LOGGER.info(f'Test set inference is done, inference artifacts are: {list(test_data_loaders.keys())}')
+        logger.info(f'Test set inference is done, inference artifacts are: {list(test_data_loaders.keys())}')
 
     def plot_learning_curves(self, output_path=None):
         """Plot the learning curves for each metric.
@@ -454,7 +454,7 @@ class GLUEvaluator:
             raise ValueError('Can plot terms changes only when BitFit.')
 
         if output_path:
-            LOGGER.info(f'Saving the BitFit bias terms changes to: {output_path}')
+            logger.info(f'Saving the BitFit bias terms changes to: {output_path}')
 
         if 'roberta' in self.model_name:
             base_model = AutoModelForSequenceClassification.from_pretrained(self.model_name, return_dict=True).roberta
@@ -553,7 +553,7 @@ class GLUEvaluator:
         tunable_params_per_component = {k: int((v * mask_size) / total_params) for k, v in
                                         params_per_component.items()}
 
-        LOGGER.info(f'Non-Masked params amount: {reduce(lambda x, y: x + y, tunable_params_per_component.values())}. '
+        logger.info(f'Non-Masked params amount: {reduce(lambda x, y: x + y, tunable_params_per_component.values())}. '
                     f'Total params: {total_params}')
 
         for name, param in model.named_parameters():
@@ -606,7 +606,7 @@ class GLUEvaluator:
                 row_indices = np.random.randint(0, bias_shape, n_rows_to_activate)
                 self.masks[name][row_indices] = True
 
-        LOGGER.info(f'Non-Masked params amount: {int(np.sum([np.sum(mask.numpy()) for mask in self.masks.values()]))}. '
+        logger.info(f'Non-Masked params amount: {int(np.sum([np.sum(mask.numpy()) for mask in self.masks.values()]))}. '
                     f'Total params: {total_params}')
 
     def _deactivate_relevant_gradients(self, trainable_components):

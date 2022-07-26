@@ -1,16 +1,27 @@
 # BitFit [(Paper)](https://arxiv.org/abs/2106.10199)
+
 Simple Parameter-efficient Fine-tuning for Transformer-based Masked Language-models
 
 # Abstract
-We introduce BitFit, a sparse-finetuning method where only the bias-terms of the model (or a subset of them) are being modified. We show that with small-to-medium training data, applying BitFit on pre-trained BERT models is competitive with (and sometimes better than) fine-tuning the entire model. For larger data, the method is competitive with other sparse fine-tuning methods.
-Besides their practical utility, these findings are relevant for the question of understanding the commonly-used process of finetuning: they support the hypothesis that finetuning is mainly about exposing knowledge induced by language-modeling training, rather than learning new task-specific linguistic knowledge. 
 
-# Environment 
+We introduce BitFit, a sparse-finetuning method where only the bias-terms of the model (or a subset of them) are being
+modified. We show that with small-to-medium training data, applying BitFit on pre-trained BERT models is competitive
+with (and sometimes better than) fine-tuning the entire model. For larger data, the method is competitive with other
+sparse fine-tuning methods.
+Besides their practical utility, these findings are relevant for the question of understanding the commonly-used process
+of finetuning: they support the hypothesis that finetuning is mainly about exposing knowledge induced by
+language-modeling training, rather than learning new task-specific linguistic knowledge.
+
+# Environment
+
 First, create an environment with all the dependencies:
+
 ```
 $ conda env create -n bitfit_env -f environment.yml
 ```
+
 Then activate it:
+
 ```
 $ conda activate bitfit_env
 ```
@@ -33,12 +44,15 @@ python run_glue.py
        --predict-test\
        --verbose
 ```
+
 For further information about the arguments run:
+
 ```
 python run_glue.py -h
 ```
 
 Example of executing full fine tuning:
+
 ```
 python run_glue.py 
        --output-path <output_path>\
@@ -49,6 +63,7 @@ python run_glue.py
 ```
 
 Example of executing full BitFit (training all bias terms):
+
 ```
 python run_glue.py 
        --output-path <output_path>\
@@ -59,6 +74,7 @@ python run_glue.py
 ```
 
 Example of executing partial BitFit (training a subset of the bias terms):
+
 ```
 python run_glue.py 
        --output-path <output_path>\
@@ -70,6 +86,7 @@ python run_glue.py
 ```
 
 Example of executing "frozen" training (i.e. using the pre-trained transformer as a feature extractor):
+
 ```
 python run_glue.py 
        --output-path <output_path>\
@@ -80,6 +97,7 @@ python run_glue.py
 ```
 
 Example of training uniformly chosen trainable parameters (similar to "rand_100k" row in Table 3 in BitFit paper)
+
 ```
 python run_glue.py 
        --output-path <output_path>\
